@@ -1,0 +1,8 @@
+signal_name,auroc,auprc,correct_mean,incorrect_mean,direction,interpretation
+Confidence,0.8561221251282051,0.9633174224846619,0.8922130400356924,0.6366373672586667,Higher = More Reliable,Strong separation capability
+Prediction Entropy,0.8520984943589743,0.9624705651492831,0.32746663465889553,0.9383596842032533,Lower = More Reliable,Strong separation capability
+Augmentation Consistency,0.7413170543589743,0.8955007132104468,0.9491282080418462,0.6896000118933333,Higher = More Reliable,Moderate separation capability
+Feature-Space Distance,0.5562002051282051,0.8513382613633793,9.877147912652307,10.181793732853334,Lower = More Reliable,Weak separation capability
+Composite Quality,0.5370739528205128,0.8285740939619104,0.3604374532184615,0.34417780233440004,Higher = More Reliable,Poor or non-discriminative signal
+Image Sharpness,0.5300738297435897,0.8274886655191477,0.07585980735789538,0.0721836118168,Higher = More Reliable,Poor or non-discriminative signal
+OOD Energy Score,0.5017731938461538,0.805361451365211,2.6836081001309306e-10,-2.22281867104e-09,Higher = More Reliable,Poor or non-discriminative signal

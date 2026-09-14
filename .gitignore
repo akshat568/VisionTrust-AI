@@ -1,0 +1,81 @@
+# Byte-compiled / Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node / React Frontend artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+.env
+.env.local
+
+# Virtual environments & Scratch space
+.venv
+env/
+venv/
+ENV/
+scratch/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Large raw datasets (raw download archives & extracted batches)
+*.tar.gz
+data/*.tar.gz
+data/raw/*.tar.gz
+cifar-10-batches-py/
+data/cifar-10-batches-py/
+data/raw/cifar-10-batches-py/
+
+# Heavy trained model weights (>100MB, handle via Git LFS or release asset download script)
+outputs/models/baseline_resnet18_best.pth
+
+# Intermediate evaluation predictions dumps (~549MB)
+outputs/predictions/*
+!outputs/predictions/.gitkeep
+outputs/test_predictions.csv
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local API test artifacts
+cifar_batch_test/
+cifar_test.png
+
+# Generated shifted datasets
+data/shifted/**/*.pt
+*.pt
+
+# Temporary model test artifact
+outputs/models/test.txt

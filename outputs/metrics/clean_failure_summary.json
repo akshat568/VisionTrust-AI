@@ -1,0 +1,22 @@
+{
+    "total_predictions": 10000,
+    "correct_predictions": 8125,
+    "incorrect_predictions": 1875,
+    "accuracy": 0.8125,
+    "average_confidence": 0.84429260139,
+    "median_confidence": 0.9453268,
+    "min_confidence": 0.1781634,
+    "max_confidence": 1.0,
+    "correct": {
+        "count": 8125,
+        "average_confidence": 0.8922130400356924,
+        "median_confidence": 0.9750778,
+        "std_confidence": 0.15877763519148486
+    },
+    "incorrect": {
+        "count": 1875,
+        "average_confidence": 0.6366373672586667,
+        "median_confidence": 0.6194522,
+        "std_confidence": 0.19533446161500415
+    }
+}

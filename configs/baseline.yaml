@@ -1,0 +1,32 @@
+experiment:
+  name: "resnet18_baseline"
+  seed: 42
+
+dataset:
+  name: "CIFAR-10"
+  num_classes: 10
+  data_dir: "data/raw"
+  batch_size: 128
+  num_workers: 0
+  val_split: 0.1
+
+model:
+  name: "resnet18"
+  num_classes: 10
+  cifar_stem: true
+  feature_dim: 512
+
+training:
+  epochs: 15
+  learning_rate: 0.001
+  weight_decay: 0.0005
+  optimizer: "adamw"
+  momentum: 0.9
+  scheduler: "cosine"
+  device: "auto"
+
+paths:
+  checkpoint_dir: "outputs/models"
+  metrics_dir: "outputs/metrics"
+  plots_dir: "outputs/plots"
+  predictions_dir: "outputs/predictions"

@@ -6,6 +6,7 @@ import streamlit as st
 
 from src.inference.pipeline import VisionTrustPipeline, InferenceResult
 from src.data.cifar10 import CIFAR10_CLASSES
+from scripts.download_model import download_file, DEFAULT_MODEL_URL
 
 # Page Configuration
 st.set_page_config(
@@ -22,11 +23,40 @@ TRUST_MODEL_PATH = "outputs/models/trust_model.pkl"
 
 @st.cache_resource(show_spinner="Loading VisionTrust ML Pipeline...")
 def load_pipeline(threshold: float = 0.50) -> VisionTrustPipeline:
-    """Load and cache the production VisionTrust inference pipeline."""
+    """Load and cache the production VisionTrust inference pipeline.
+
+    If the baseline ResNet-18 model checkpoint is missing locally (e.g. on Streamlit Cloud),
+    it is automatically downloaded from the GitHub Release asset URL to outputs/models/.
+    """
+    model_path = Path(MODEL_PATH).resolve()
+    centroids_path = Path(CENTROIDS_PATH).resolve()
+    trust_model_path = Path(TRUST_MODEL_PATH).resolve()
+
+    # Ensure model output directory exists
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Automatically download baseline checkpoint from GitHub Release if missing
+    if not model_path.exists():
+        url = os.environ.get("VISIONTRUST_MODEL_URL", DEFAULT_MODEL_URL)
+        with st.spinner("Downloading baseline ResNet-18 checkpoint (~128 MB) from GitHub Release..."):
+            download_file(url, model_path)
+
+    # Validate remaining repository artifacts
+    if not centroids_path.exists():
+        raise FileNotFoundError(
+            f"Training feature centroids artifact not found at '{centroids_path}'. "
+            f"Ensure outputs/metrics/train_feature_centroids.npy is present in the repository."
+        )
+    if not trust_model_path.exists():
+        raise FileNotFoundError(
+            f"Trust model artifact not found at '{trust_model_path}'. "
+            f"Ensure outputs/models/trust_model.pkl is present in the repository."
+        )
+
     return VisionTrustPipeline(
-        model_path=MODEL_PATH,
-        centroids_path=CENTROIDS_PATH,
-        trust_model_path=TRUST_MODEL_PATH,
+        model_path=str(model_path),
+        centroids_path=str(centroids_path),
+        trust_model_path=str(trust_model_path),
         threshold=threshold,
     )
 
@@ -56,14 +86,14 @@ def main():
     )
 
     # Artifact check
-    artifacts_ok = (
-        Path(MODEL_PATH).exists()
-        and Path(CENTROIDS_PATH).exists()
-        and Path(TRUST_MODEL_PATH).exists()
-    )
+    model_exists = Path(MODEL_PATH).exists()
+    centroids_exists = Path(CENTROIDS_PATH).exists()
+    trust_model_exists = Path(TRUST_MODEL_PATH).exists()
 
-    if artifacts_ok:
+    if model_exists and centroids_exists and trust_model_exists:
         st.sidebar.success("✅ Model Artifacts Loaded")
+    elif not model_exists:
+        st.sidebar.info("ℹ️ Model checkpoint will auto-download on first load")
     else:
         st.sidebar.error("❌ Model Artifacts Missing")
 
@@ -83,17 +113,15 @@ def main():
         "Upload a CIFAR-10 image to compute model predictions alongside real-time trust scores and failure risk evaluations."
     )
 
-    if not artifacts_ok:
-        st.error(
-            "Required trained model artifacts were not found. Please verify that `outputs/models/` and `outputs/metrics/` exist."
-        )
-        st.stop()
-
     try:
         pipeline = load_pipeline(threshold=threshold)
         pipeline.threshold = threshold
     except Exception as e:
-        st.error(f"Failed to initialize VisionTrust inference pipeline: {e}")
+        st.error(
+            f"Failed to initialize VisionTrust inference pipeline:\n\n`{e}`\n\n"
+            "Please ensure `outputs/metrics/train_feature_centroids.npy` and `outputs/models/trust_model.pkl` "
+            "are present in the repository."
+        )
         st.stop()
 
     col_input, col_preview = st.columns([1, 1])

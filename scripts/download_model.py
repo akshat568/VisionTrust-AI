@@ -10,10 +10,10 @@ from pathlib import Path
 import sys
 import urllib.request
 
-# Placeholder URL - Replace with actual GitHub Release asset URL or S3/GCS bucket link upon release
+# Default GitHub Release asset URL for pre-trained ResNet-18 model checkpoint (~128 MB)
 DEFAULT_MODEL_URL = os.environ.get(
     "VISIONTRUST_MODEL_URL",
-    "<INSERT_HOSTED_RELEASE_URL_HERE>",
+    "https://github.com/akshat568/VisionTrust-AI/releases/download/v1.0.0/baseline_resnet18_best.pth",
 )
 
 DEFAULT_DESTINATION = Path("outputs/models/baseline_resnet18_best.pth")
@@ -21,6 +21,7 @@ DEFAULT_DESTINATION = Path("outputs/models/baseline_resnet18_best.pth")
 
 def download_file(url: str, dest_path: Path):
     """Download file with progress report."""
+    dest_path = Path(dest_path).resolve()
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     print(f"Downloading pre-trained ResNet-18 model weights from:\n  {url}")
     print(f"Destination: {dest_path}")
@@ -40,13 +41,24 @@ def download_file(url: str, dest_path: Path):
         sys.stdout.flush()
 
     try:
-        urllib.request.urlretrieve(url, dest_path, reporthook=progress_callback)
+        req = urllib.request.Request(url, headers={"User-Agent": "VisionTrust-AI/1.0"})
+        with urllib.request.urlopen(req) as response, open(dest_path, "wb") as out_file:
+            total_size = int(response.headers.get("Content-Length", 0))
+            block_size = 8192
+            block_num = 0
+            while True:
+                buffer = response.read(block_size)
+                if not buffer:
+                    break
+                out_file.write(buffer)
+                block_num += 1
+                progress_callback(block_num, block_size, total_size)
         print("\nDownload completed successfully!")
     except Exception as e:
         print(f"\nFailed to download model weights: {e}")
         if dest_path.exists():
             dest_path.unlink()
-        sys.exit(1)
+        raise RuntimeError(f"Failed to download model weights from '{url}': {e}") from e
 
 
 def main():
@@ -105,7 +117,11 @@ def main():
         print("=" * 70 + "\n")
         sys.exit(0)
 
-    download_file(url, dest_path)
+    try:
+        download_file(url, dest_path)
+    except Exception:
+        sys.exit(1)
+
 
 
 if __name__ == "__main__":

@@ -17,6 +17,12 @@ While standard computer vision models produce overconfident softmax probabilitie
 
 ---
 
+## Live Demo
+
+[🚀 Live Demo — Try VisionTrust AI](https://vision-trust-ai.vercel.app)
+
+---
+
 ## Problem Statement
 
 Deep neural network vision classifiers are routinely deployed in safety-critical domains (autonomous driving, medical imaging, quality inspection). However, standard deep learning models exhibit a fundamental flaw:

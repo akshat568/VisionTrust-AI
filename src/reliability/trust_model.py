@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union, Any
 import joblib
@@ -152,10 +154,14 @@ class TrustModelPipeline:
         p_correct = self.predict_proba(X, model_type=model_type)
         return 1.0 - p_correct
 
-    def get_feature_importance(self) -> pd.DataFrame:
+    def get_feature_importance(self) -> Any:
         """Return Logistic Regression coefficients and Random Forest feature importances."""
         if not self.is_fitted:
             raise RuntimeError("Pipeline is not fitted!")
+        if pd is None:
+            raise ImportError(
+                "pandas is required for get_feature_importance(). Please install pandas to use this method."
+            )
 
         log_coefs = self.logistic_model.coef_[0]
         rf_imp = self.rf_model.feature_importances_

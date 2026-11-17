@@ -1,14 +1,16 @@
-from typing import Tuple
-from torchvision import transforms
+from typing import Tuple, Any
 
-# Official CIFAR-10 channel mean and standard deviation
-CIFAR10_MEAN: Tuple[float, float, float] = (0.4914, 0.4822, 0.4465)
-CIFAR10_STD: Tuple[float, float, float] = (0.2470, 0.2435, 0.2616)
+try:
+    from torchvision import transforms
+except ImportError:
+    transforms = None
+
+from src.inference.constants import CIFAR10_MEAN, CIFAR10_STD
 
 
 def get_cifar10_transforms(
     augment_training: bool = True,
-) -> Tuple[transforms.Compose, transforms.Compose]:
+) -> Tuple[Any, Any]:
     """Get preprocessing transformations for training, validation, and testing on CIFAR-10.
 
     Args:

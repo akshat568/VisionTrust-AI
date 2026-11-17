@@ -1,23 +1,42 @@
+# Version control
 .git
 .gitignore
+
+# Virtual environments & scratch directories
 .venv
 env/
 venv/
-frontend/node_modules
-frontend/dist
+ENV/
 scratch/
-.pytest_cache
+
+# Frontend (deployed independently on Vercel)
+frontend/
+
+# Python cache & build artifacts
 __pycache__
 *.pyc
 *.pyo
 *.pyd
-*.pt
-data/raw/*.tar.gz
+.pytest_cache
+.coverage
+htmlcov/
+
+# Heavy training datasets (not used in production inference)
+data/
 *.tar.gz
 cifar-10-batches-py/
-data/cifar-10-batches-py/
 cifar_batch_test/
 cifar_test.png
+
+# PyTorch checkpoints (134 MB PyTorch checkpoint excluded; ONNX model is used in production)
+outputs/models/*.pth
+*.pt
+
+# Intermediate evaluation dumps & plots (~500+ MB)
+outputs/predictions/
+outputs/plots/
+
+# IDE & OS files
 .vscode/
 .idea/
 .DS_Store

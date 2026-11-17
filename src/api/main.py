@@ -3,7 +3,7 @@ import io
 import logging
 from pathlib import Path
 import time
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,7 +26,7 @@ from src.api.schemas import (
     TrustResponse,
     ErrorResponse,
 )
-from src.inference.pipeline import VisionTrustPipeline, InferenceResult
+from src.inference.schema import InferenceResult
 
 # Setup structured logger
 logging.basicConfig(
@@ -196,7 +196,7 @@ async def health_check():
 )
 async def predict_single(
     image: UploadFile = File(..., description="Image binary file upload (PNG, JPEG, WEBP, BMP)."),
-    pipeline: VisionTrustPipeline = Depends(get_pipeline),
+    pipeline: Any = Depends(get_pipeline),
 ):
     """Run real inference on a single uploaded image."""
     start_time = time.perf_counter()
@@ -230,7 +230,7 @@ async def predict_single(
 )
 async def predict_batch(
     images: List[UploadFile] = File(..., description="Multiple image binary file uploads."),
-    pipeline: VisionTrustPipeline = Depends(get_pipeline),
+    pipeline: Any = Depends(get_pipeline),
 ):
     """Run real inference on a batch of uploaded images."""
     if not images:

@@ -1,8 +1,13 @@
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, Any
 import joblib
 import numpy as np
-import pandas as pd
+
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -48,10 +53,10 @@ class TrustModelPipeline:
         self.is_fitted = False
 
     def _extract_features(
-        self, data: Union[pd.DataFrame, np.ndarray]
+        self, data: Any
     ) -> np.ndarray:
         """Extract and validate feature matrix from DataFrame or numpy array."""
-        if isinstance(data, pd.DataFrame):
+        if pd is not None and isinstance(data, pd.DataFrame):
             # Verify no ground truth true label is included in features
             forbidden = ["true_label", "target", "correctness"]
             for col in forbidden:

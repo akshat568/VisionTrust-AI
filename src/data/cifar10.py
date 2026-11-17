@@ -1,25 +1,21 @@
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Any
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit
-import torch
-from torch.utils.data import Dataset, Subset
-from torchvision.datasets import CIFAR10
+
+try:
+    import torch
+    from torch.utils.data import Dataset, Subset
+    from torchvision.datasets import CIFAR10
+except ImportError:
+    torch = None
+    Dataset = Any
+    Subset = Any
+    CIFAR10 = None
 
 from src.data.transforms import get_cifar10_transforms
 from src.utils.seed import set_seed
 
-CIFAR10_CLASSES: Tuple[str, ...] = (
-    "airplane",
-    "automobile",
-    "bird",
-    "cat",
-    "deer",
-    "dog",
-    "frog",
-    "horse",
-    "ship",
-    "truck",
-)
+from src.inference.constants import CIFAR10_CLASSES
 
 
 def get_cifar10_datasets(

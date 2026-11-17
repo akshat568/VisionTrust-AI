@@ -15,8 +15,14 @@ DEFAULT_MODEL_URL = os.environ.get(
     "VISIONTRUST_MODEL_URL",
     "https://github.com/akshat568/VisionTrust-AI/releases/download/v1.0.0/baseline_resnet18_best.pth",
 )
+DEFAULT_ONNX_MODEL_URL = os.environ.get(
+    "VISIONTRUST_ONNX_MODEL_URL",
+    "",
+)
 
-DEFAULT_DESTINATION = Path("outputs/models/baseline_resnet18_best.pth")
+DEFAULT_PYTORCH_DESTINATION = Path("outputs/models/baseline_resnet18_best.pth")
+DEFAULT_ONNX_DESTINATION = Path("outputs/models/baseline_resnet18.onnx")
+DEFAULT_DESTINATION = DEFAULT_PYTORCH_DESTINATION
 
 
 def download_file(url: str, dest_path: Path):
@@ -63,19 +69,24 @@ def download_file(url: str, dest_path: Path):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Verify or download VisionTrust AI ResNet-18 pre-trained model weights."
+        description="Verify or download VisionTrust AI ResNet-18 model weights (PyTorch or ONNX)."
+    )
+    parser.add_argument(
+        "--onnx",
+        action="store_true",
+        help="Target ONNX runtime model ('outputs/models/baseline_resnet18.onnx') instead of PyTorch checkpoint.",
     )
     parser.add_argument(
         "--output",
         type=str,
-        default=str(DEFAULT_DESTINATION),
-        help="Destination file path for baseline weights checkpoint.",
+        default=None,
+        help="Destination file path for model weights checkpoint/artifact.",
     )
     parser.add_argument(
         "--url",
         type=str,
-        default=DEFAULT_MODEL_URL,
-        help="URL to download model checkpoint from (or set VISIONTRUST_MODEL_URL env var).",
+        default=None,
+        help="URL to download model checkpoint from (or set VISIONTRUST_MODEL_URL / VISIONTRUST_ONNX_MODEL_URL).",
     )
     parser.add_argument(
         "--force",
@@ -89,31 +100,44 @@ def main():
     )
     args = parser.parse_args()
 
-    dest_path = Path(args.output).resolve()
+    # Determine destination path and download URL based on target format
+    if args.onnx:
+        dest_path = Path(args.output or DEFAULT_ONNX_DESTINATION).resolve()
+        url = args.url or DEFAULT_ONNX_MODEL_URL
+        model_name = "ONNX ResNet-18 model"
+    else:
+        dest_path = Path(args.output or DEFAULT_PYTORCH_DESTINATION).resolve()
+        url = args.url or DEFAULT_MODEL_URL
+        model_name = "PyTorch ResNet-18 checkpoint"
 
     if dest_path.exists() and not args.force:
         size_mb = dest_path.stat().st_size / (1024 * 1024)
-        print(f"Model checkpoint already present at '{dest_path}' ({size_mb:.2f} MB).")
+        print(f"{model_name} already present at '{dest_path}' ({size_mb:.2f} MB).")
         print("Use --force to re-download if necessary.")
         return
 
     if args.check_only:
-        print(f"Model checkpoint NOT found at '{dest_path}'.")
+        print(f"{model_name} NOT found at '{dest_path}'.")
         sys.exit(1)
 
-    url = args.url
     if not url or "<INSERT_HOSTED_RELEASE_URL_HERE>" in url:
         print("\n" + "=" * 70)
         print("VISIONTRUST AI MODEL DOWNLOAD GUIDE")
         print("=" * 70)
-        print(f"The baseline model weights file ('{dest_path.name}') is ~128 MB and excluded")
-        print("from git history to stay within repository size limits.\n")
-        print("To obtain the model checkpoint:")
-        print("  1. Download 'baseline_resnet18_best.pth' from GitHub Releases or hosted storage.")
-        print(f"  2. Place the file at: {dest_path}")
-        print("  OR")
-        print("  3. Pass a direct URL: python scripts/download_model.py --url <DIRECT_DOWNLOAD_URL>")
-        print("  OR set environment variable: VISIONTRUST_MODEL_URL=<DIRECT_DOWNLOAD_URL>")
+        print(f"The model weights file ('{dest_path.name}') is not yet available at: {dest_path}\n")
+        if args.onnx:
+            print("To obtain the ONNX model:")
+            print("  1. Run: python scripts/export_onnx.py (generates outputs/models/baseline_resnet18.onnx)")
+            print("  OR")
+            print("  2. Pass a direct URL: python scripts/download_model.py --onnx --url <DIRECT_DOWNLOAD_URL>")
+            print("  OR set environment variable: VISIONTRUST_ONNX_MODEL_URL=<DIRECT_DOWNLOAD_URL>")
+        else:
+            print("To obtain the PyTorch model checkpoint:")
+            print("  1. Download 'baseline_resnet18_best.pth' from GitHub Releases or hosted storage.")
+            print(f"  2. Place the file at: {dest_path}")
+            print("  OR")
+            print("  3. Pass a direct URL: python scripts/download_model.py --url <DIRECT_DOWNLOAD_URL>")
+            print("  OR set environment variable: VISIONTRUST_MODEL_URL=<DIRECT_DOWNLOAD_URL>")
         print("=" * 70 + "\n")
         sys.exit(0)
 

@@ -7,6 +7,7 @@ PORT: int = int(os.getenv("PORT", 8000))
 
 # CORS Configuration for local & production deployment
 DEFAULT_CORS_ORIGINS: List[str] = [
+    "https://vision-trust-ai.vercel.app",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:3000",
@@ -38,8 +39,12 @@ ALLOWED_IMAGE_EXTENSIONS: Set[str] = {
     ".bmp",
 }
 
+# Inference Engine Selection: "onnx" (production default, <= 512 MB RAM) or "pytorch" (development fallback)
+INFERENCE_ENGINE: str = os.getenv("INFERENCE_ENGINE", "onnx").lower()
+
 # Artifact Paths & Decision Threshold
-MODEL_PATH: str = "outputs/models/baseline_resnet18_best.pth"
-CENTROIDS_PATH: str = "outputs/metrics/train_feature_centroids.npy"
-TRUST_MODEL_PATH: str = "outputs/models/trust_model.pkl"
-DEFAULT_THRESHOLD: float = 0.50
+ONNX_MODEL_PATH: str = os.getenv("ONNX_MODEL_PATH", "outputs/models/baseline_resnet18.onnx")
+MODEL_PATH: str = os.getenv("MODEL_PATH", "outputs/models/baseline_resnet18_best.pth")
+CENTROIDS_PATH: str = os.getenv("CENTROIDS_PATH", "outputs/metrics/train_feature_centroids.npy")
+TRUST_MODEL_PATH: str = os.getenv("TRUST_MODEL_PATH", "outputs/models/trust_model.pkl")
+DEFAULT_THRESHOLD: float = float(os.getenv("DEFAULT_THRESHOLD", "0.50"))
